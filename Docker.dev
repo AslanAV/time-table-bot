@@ -1,0 +1,27 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Moscow
+ENV PATH=node_modules/.bin:$PATH
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    make \
+    curl \
+    git \
+    libpq-dev \
+    libzip-dev \
+    sqlite3 \
+    unzip \
+    zip \
+    php \
+    php-bcmath \
+    php-exif \
+    php-pdo \
+    php-pgsql \
+    php-pgsql \
+    php-zip \
+    php-xdebug \
+    php-dom \
+    php-xml \
