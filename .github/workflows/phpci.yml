@@ -1,4 +1,5 @@
-name: Tests & Lint & Deploy
+name: Tests & Lint & Deploy to Railway
+
 on:
   push:
     branches:
@@ -35,18 +36,33 @@ jobs:
       - name: Execute tests (Unit and Feature tests) via PHPUnit
         run: make test-coverage
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+      - name: Run test & publish code coverage
+        uses: paambaati/codeclimate-action@v3.2.0
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
         with:
-          file: build/logs/clover.xml
-        # fail_ci_if_error: true
-
+          coverageCommand: make test-coverage
+          coverageLocations: build/logs/clover.xml:clover
+          debug: true
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to Render.com with deploy hook
-        uses: fjogeleit/http-request-action@v1
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Use Node 16
+        uses: actions/setup-node@v3
         with:
-          url: ${{ secrets.DEPLOY_HOOK }}
-          method: 'GET'
+          node-version: 16.x
+
+      - name: Install packages
+        run: yarn install --frozen-lockfile
+
+      - name: Install Railway
+        run: npm i -g @railway/cli
+
+      - name: Deploy
+        run: railway up
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
